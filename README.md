@@ -52,3 +52,40 @@ root@ecss:~/kernel#
 root@ecss:~/kernel# sudo grub-set-default 0
 Searching for GRUB installation directory ... found: /boot/grub
 root@ecss:~/kernel#
+
+
+новая ubuntu 22.04.
+ecss@ecss:~$ uname -r
+5.15.0-133-generic
+
+ecss@ecss:~$ ls -al /boot
+total 121388
+drwxr-xr-x  4 root root      4096 Mar  2 15:02 .
+drwxr-xr-x 20 root root      4096 Mar  2 15:02 ..
+-rw-------  1 root root   6295053 Feb  7 17:44 System.map-5.15.0-133-generic
+-rw-r--r--  1 root root    262228 Feb  7 17:44 config-5.15.0-133-generic
+drwxr-xr-x  5 root root      4096 Mar  2 15:02 grub
+lrwxrwxrwx  1 root root        29 Mar  2 15:02 initrd.img -> initrd.img-5.15.0-133-generic
+-rw-r--r--  1 root root 105995865 Mar  2 15:02 initrd.img-5.15.0-133-generic
+lrwxrwxrwx  1 root root        29 Mar  2 15:02 initrd.img.old -> initrd.img-5.15.0-133-generic
+drwx------  2 root root     16384 Mar  2 15:00 lost+found
+lrwxrwxrwx  1 root root        26 Mar  2 15:02 vmlinuz -> vmlinuz-5.15.0-133-generic
+-rw-------  1 root root  11711400 Feb  7 18:12 vmlinuz-5.15.0-133-generic
+lrwxrwxrwx  1 root root        26 Mar  2 15:02 vmlinuz.old -> vmlinuz-5.15.0-133-generic
+ecss@ecss:~$
+drwxrwxr-x 2 ecss ecss      4096 Mar  2 15:19 .
+drwxr-x--- 5 ecss ecss      4096 Mar  2 15:13 ..
+-rw-rw-r-- 1 ecss ecss   3812282 Feb  8 09:32 linux-headers-6.13.0-061300-generic_6.13.0-061300.202501302155_amd64.deb
+-rw-rw-r-- 1 ecss ecss  13868606 Feb  8 09:32 linux-headers-6.13.0-061300_6.13.0-061300.202501302155_all.deb
+-rw-rw-r-- 1 ecss ecss  15861952 Feb  8 09:32 linux-image-unsigned-6.13.0-061300-generic_6.13.0-061300.202501302155_amd64.deb
+-rw-rw-r-- 1 ecss ecss 191856832 Feb  8 09:32 linux-modules-6.13.0-061300-generic_6.13.0-061300.202501302155_amd64.deb
+ecss@ecss:~/kernel$ sudo dpkg -i *.deb
+
+
+ecss@ecss:~$ uname -r
+6.13.0-061300-generic
+ecss@ecss:~$
+ecss@ecss:~$
+
+
+
