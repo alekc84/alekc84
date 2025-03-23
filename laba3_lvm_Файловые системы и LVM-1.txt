@@ -1,0 +1,367 @@
+root@ecss:~# pvcreate /dev/md127p2
+WARNING: ext4 signature detected on /dev/md127p2 at offset 1080. Wipe it? [y/n]: y
+  Wiping ext4 signature on /dev/md127p2.
+  Physical volume "/dev/md127p2" successfully created.
+root@ecss:~#
+root@ecss:~# vgcreate otus /dev/md127p2
+  Volume group "otus" successfully created
+root@ecss:~# lvcreate -l+80%FREE -n test otus
+  Logical volume "test" created.
+  
+  root@ecss:~# vgdisplay otus
+  --- Volume group ---
+  VG Name               otus
+  System ID
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  2
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                1
+  Open LV               0
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               5.99 GiB
+  PE Size               4.00 MiB
+  Total PE              1534
+  Alloc PE / Size       1227 / 4.79 GiB
+  Free  PE / Size       307 / <1.20 GiB
+  VG UUID               UscP64-FpiI-H99T-GXuN-cgno-2bft-v6o3iu
+
+
+
+root@ecss:~# vgdisplay -v otus | grep 'PV Name'
+  PV Name               /dev/md127p2
+
+
+
+Подробная информация
+ 
+root@ecss:~# lvdisplay /dev/otus/test
+  --- Logical volume ---
+  LV Path                /dev/otus/test
+  LV Name                test
+  VG Name                otus
+  LV UUID                1vX98j-oYvS-CnXY-fayA-0tXw-m4eX-T60vT8
+  LV Write Access        read/write
+  LV Creation host, time ecss, 2025-03-23 13:04:24 +0000
+  LV Status              available
+  # open                 0
+  LV Size                4.79 GiB
+  Current LE             1227
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     6144
+  Block device           252:1
+
+
+root@ecss:~# vgs
+  VG        #PV #LV #SN Attr   VSize   VFree
+  otus        1   1   0 wz--n-   5.99g  <1.20g
+  ubuntu-vg   1   1   0 wz--n- 205.99g 105.99g
+root@ecss:~#
+
+
+root@ecss:~# lvs
+  LV        VG        Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  test      otus      -wi-a-----   4.79g
+  ubuntu-lv ubuntu-vg -wi-ao---- 100.00g
+
+
+
+
+создали еще LVM
+
+root@ecss:~# lvcreate -L100M -n small otus
+  Logical volume "small" created.
+увидели состояние
+root@ecss:~# lvs
+  LV        VG        Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  small     otus      -wi-a----- 100.00m
+  test      otus      -wi-a-----   4.79g
+  ubuntu-lv ubuntu-vg -wi-ao---- 100.00g
+
+
+Создаем и монтируем файловую систему 
+root@ecss:~# df -h
+Filesystem                         Size  Used Avail Use% Mounted on
+tmpfs                              795M  868K  794M   1% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv   98G  7.2G   86G   8% /
+tmpfs                              3.9G     0  3.9G   0% /dev/shm
+tmpfs                              5.0M     0  5.0M   0% /run/lock
+/dev/sda2                          2.0G  319M  1.5G  18% /boot
+tmpfs                              795M  4.0K  795M   1% /run/user/1000
+/dev/mapper/otus-test              4.7G   24K  4.4G   1% /data
+root@ecss:~#
+
+
+Рассширяем LVM 
+
+root@ecss:~# pvcreate /dev/md127p3
+WARNING: ext4 signature detected on /dev/md127p3 at offset 1080. Wipe it? [y/n]: y
+  Wiping ext4 signature on /dev/md127p3.
+  Physical volume "/dev/md127p3" successfully created.
+root@ecss:~#
+root@ecss:~#
+root@ecss:~# vgextend otus /dev/md127p3
+  Volume group "otus" successfully extended
+root@ecss:~#
+
+
+Убедимся что новый диск присутствует в новой VG:
+
+root@ecss:~# vgextend otus /dev/md127p3
+  Volume group "otus" successfully extended
+root@ecss:~# vgdisplay -v otus | grep 'PV Name'
+  PV Name               /dev/md127p2
+  PV Name               /dev/md127p3
+
+
+смотри,что место стало больше
+
+root@ecss:~# vgs
+  VG        #PV #LV #SN Attr   VSize   VFree
+  otus        2   2   0 wz--n-  11.98g   7.09g
+  ubuntu-vg   1   1   0 wz--n- 205.99g 105.99g
+root@ecss:~#
+
+
+root@ecss:~# dd if=/dev/zero of=/data/test.log bs=1M \
+ count=8000 status=progress
+4846518272 bytes (4.8 GB, 4.5 GiB) copied, 16 s, 303 MB/s
+dd: error writing '/data/test.log': No space left on device
+4732+0 records in
+4731+0 records out
+4961513472 bytes (5.0 GB, 4.6 GiB) copied, 16.4761 s, 301 MB/s
+root@ecss:~# df -Th /data/
+Filesystem            Type  Size  Used Avail Use% Mounted on
+/dev/mapper/otus-test ext4  4.7G  4.7G     0 100% /data
+
+
+
+root@ecss:~# lvextend -l+80%FREE /dev/otus/test
+  Size of logical volume otus/test changed from 4.79 GiB (1227 extents) to <10.47 GiB (2680 extents).
+  Logical volume otus/test successfully resized.
+root@ecss:~# lvs /dev/otus/test
+  LV   VG   Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  test otus -wi-ao---- <10.47g
+root@ecss:~# df -Th /data
+Filesystem            Type  Size  Used Avail Use% Mounted on
+/dev/mapper/otus-test ext4  4.7G  4.7G     0 100% /data
+root@ecss:~# resize2fs /dev/otus/test
+resize2fs 1.46.5 (30-Dec-2021)
+Filesystem at /dev/otus/test is mounted on /data; on-line resizing required
+old_desc_blocks = 1, new_desc_blocks = 2
+The filesystem on /dev/otus/test is now 2744320 (4k) blocks long.
+
+root@ecss:~#
+
+root@ecss:~#
+root@ecss:~#
+root@ecss:~# df -Th /data
+Filesystem            Type  Size  Used Avail Use% Mounted on
+/dev/mapper/otus-test ext4   11G  4.7G  5.2G  48% /data
+root@ecss:~#
+
+root@ecss:~# lvs /dev/otus/test
+  LV   VG   Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  test otus -wi-ao---- <10.47g
+root@ecss:~#
+
+создаем снапшот 
+root@ecss:~# lvcreate -L 500M -s -n test-snap /dev/otus/test
+  Logical volume "test-snap" created.
+root@ecss:~# vgs
+  VG        #PV #LV #SN Attr   VSize   VFree
+  otus        2   3   1 wz--n-  11.98g 952.00m
+  ubuntu-vg   1   1   0 wz--n- 205.99g 105.99g
+root@ecss:~# lvcreate -L 500M -s -n test-snap /dev/otus/test
+  Logical Volume "test-snap" already exists in volume group "otus"
+root@ecss:~# vgs
+  VG        #PV #LV #SN Attr   VSize   VFree
+  otus        2   3   1 wz--n-  11.98g 952.00m
+  ubuntu-vg   1   1   0 wz--n- 205.99g 105.99g
+root@ecss:~# lsblk
+NAME                      MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINTS
+sda                         8:0    0  208G  0 disk
+├─sda1                      8:1    0    1M  0 part
+├─sda2                      8:2    0    2G  0 part  /boot
+└─sda3                      8:3    0  206G  0 part
+  └─ubuntu--vg-ubuntu--lv 252:0    0  100G  0 lvm   /
+sdb                         8:16   0   10G  0 disk
+└─md127                     9:127  0   30G  0 raid6
+  ├─md127p1               259:0    0    6G  0 part
+  ├─md127p2               259:1    0    6G  0 part
+  │ ├─otus-small          252:2    0  100M  0 lvm
+  │ └─otus-test-real      252:3    0 10.5G  0 lvm
+  │   ├─otus-test         252:1    0 10.5G  0 lvm   /data
+  │   └─otus-test--snap   252:5    0 10.5G  0 lvm
+  ├─md127p3               259:2    0    6G  0 part
+  │ ├─otus-test-real      252:3    0 10.5G  0 lvm
+  │ │ ├─otus-test         252:1    0 10.5G  0 lvm   /data
+  │ │ └─otus-test--snap   252:5    0 10.5G  0 lvm
+  │ └─otus-test--snap-cow 252:4    0  500M  0 lvm
+  │   └─otus-test--snap   252:5    0 10.5G  0 lvm
+  ├─md127p4               259:3    0    6G  0 part
+  ├─md127p5               259:4    0    6G  0 part
+  └─md127p6               259:5    0  1.5M  0 part
+sdc                         8:32   0   10G  0 disk
+└─md127                     9:127  0   30G  0 raid6
+  ├─md127p1               259:0    0    6G  0 part
+  ├─md127p2               259:1    0    6G  0 part
+  │ ├─otus-small          252:2    0  100M  0 lvm
+  │ └─otus-test-real      252:3    0 10.5G  0 lvm
+  │   ├─otus-test         252:1    0 10.5G  0 lvm   /data
+  │   └─otus-test--snap   252:5    0 10.5G  0 lvm
+  ├─md127p3               259:2    0    6G  0 part
+  │ ├─otus-test-real      252:3    0 10.5G  0 lvm
+  │ │ ├─otus-test         252:1    0 10.5G  0 lvm   /data
+  │ │ └─otus-test--snap   252:5    0 10.5G  0 lvm
+  │ └─otus-test--snap-cow 252:4    0  500M  0 lvm
+  │   └─otus-test--snap   252:5    0 10.5G  0 lvm
+  ├─md127p4               259:3    0    6G  0 part
+  ├─md127p5               259:4    0    6G  0 part
+  └─md127p6               259:5    0  1.5M  0 part
+sdd                         8:48   0   10G  0 disk
+└─md127                     9:127  0   30G  0 raid6
+  ├─md127p1               259:0    0    6G  0 part
+  ├─md127p2               259:1    0    6G  0 part
+  │ ├─otus-small          252:2    0  100M  0 lvm
+  │ └─otus-test-real      252:3    0 10.5G  0 lvm
+  │   ├─otus-test         252:1    0 10.5G  0 lvm   /data
+  │   └─otus-test--snap   252:5    0 10.5G  0 lvm
+  ├─md127p3               259:2    0    6G  0 part
+  │ ├─otus-test-real      252:3    0 10.5G  0 lvm
+  │ │ ├─otus-test         252:1    0 10.5G  0 lvm   /data
+  │ │ └─otus-test--snap   252:5    0 10.5G  0 lvm
+  │ └─otus-test--snap-cow 252:4    0  500M  0 lvm
+  │   └─otus-test--snap   252:5    0 10.5G  0 lvm
+  ├─md127p4               259:3    0    6G  0 part
+  ├─md127p5               259:4    0    6G  0 part
+  └─md127p6               259:5    0  1.5M  0 part
+sde                         8:64   0   10G  0 disk
+└─md127                     9:127  0   30G  0 raid6
+  ├─md127p1               259:0    0    6G  0 part
+  ├─md127p2               259:1    0    6G  0 part
+  │ ├─otus-small          252:2    0  100M  0 lvm
+  │ └─otus-test-real      252:3    0 10.5G  0 lvm
+  │   ├─otus-test         252:1    0 10.5G  0 lvm   /data
+  │   └─otus-test--snap   252:5    0 10.5G  0 lvm
+  ├─md127p3               259:2    0    6G  0 part
+  │ ├─otus-test-real      252:3    0 10.5G  0 lvm
+  │ │ ├─otus-test         252:1    0 10.5G  0 lvm   /data
+  │ │ └─otus-test--snap   252:5    0 10.5G  0 lvm
+  │ └─otus-test--snap-cow 252:4    0  500M  0 lvm
+  │   └─otus-test--snap   252:5    0 10.5G  0 lvm
+  ├─md127p4               259:3    0    6G  0 part
+  ├─md127p5               259:4    0    6G  0 part
+  └─md127p6               259:5    0  1.5M  0 part
+sdf                         8:80   0   10G  0 disk
+└─md127                     9:127  0   30G  0 raid6
+  ├─md127p1               259:0    0    6G  0 part
+  ├─md127p2               259:1    0    6G  0 part
+  │ ├─otus-small          252:2    0  100M  0 lvm
+  │ └─otus-test-real      252:3    0 10.5G  0 lvm
+  │   ├─otus-test         252:1    0 10.5G  0 lvm   /data
+  │   └─otus-test--snap   252:5    0 10.5G  0 lvm
+  ├─md127p3               259:2    0    6G  0 part
+  │ ├─otus-test-real      252:3    0 10.5G  0 lvm
+  │ │ ├─otus-test         252:1    0 10.5G  0 lvm   /data
+  │ │ └─otus-test--snap   252:5    0 10.5G  0 lvm
+  │ └─otus-test--snap-cow 252:4    0  500M  0 lvm
+  │   └─otus-test--snap   252:5    0 10.5G  0 lvm
+  ├─md127p4               259:3    0    6G  0 part
+  ├─md127p5               259:4    0    6G  0 part
+  └─md127p6               259:5    0  1.5M  0 part
+sr0             
+
+
+монтируем снапшот 
+
+root@ecss:~# mkdir /data-snap
+root@ecss:~# mount /dev/otus/test-snap /data-snap/
+root@ecss:~# ll /data-snap/
+total 4845256
+drwxr-xr-x  3 root root       4096 Mar 23 13:16 ./
+drwxr-xr-x 23 root root       4096 Mar 23 13:23 ../
+drwx------  2 root root      16384 Mar 23 13:08 lost+found/
+-rw-r--r--  1 root root 4961513472 Mar 23 13:17 test.log
+
+
+
+
+восстанавливаем снашот
+
+root@ecss:~# mkdir /data-snap
+root@ecss:~# mount /dev/otus/test-snap /data-snap/
+root@ecss:~# ll /data-snap/
+total 4845256
+drwxr-xr-x  3 root root       4096 Mar 23 13:16 ./
+drwxr-xr-x 23 root root       4096 Mar 23 13:23 ../
+drwx------  2 root root      16384 Mar 23 13:08 lost+found/
+-rw-r--r--  1 root root 4961513472 Mar 23 13:17 test.log
+root@ecss:~# ls -la /data-snap/
+total 4845256
+drwxr-xr-x  3 root root       4096 Mar 23 13:16 .
+drwxr-xr-x 23 root root       4096 Mar 23 13:23 ..
+drwx------  2 root root      16384 Mar 23 13:08 lost+found
+-rw-r--r--  1 root root 4961513472 Mar 23 13:17 test.log
+root@ecss:~#
+root@ecss:~# umount /data-snap
+root@ecss:~#
+
+root@ecss:~#
+root@ecss:~#
+
+root@ecss:~# rm /data/test.log
+root@ecss:~# ll /data
+total 24
+drwxr-xr-x  3 root root  4096 Mar 23 13:25 ./
+drwxr-xr-x 23 root root  4096 Mar 23 13:23 ../
+drwx------  2 root root 16384 Mar 23 13:08 lost+found/
+root@ecss:~# umount /data
+root@ecss:~#
+root@ecss:~#
+root@ecss:~# ll /data
+total 8
+drwxr-xr-x  2 root root 4096 Mar 23 13:09 ./
+drwxr-xr-x 23 root root 4096 Mar 23 13:23 ../
+root@ecss:~# lvconvert --merge /dev/otus/test-snap
+  Merging of volume otus/test-snap started.
+  otus/test: Merged: 100.00%
+root@ecss:~#
+root@ecss:~# mount /dev/otus/test /data
+root@ecss:~# ll /data
+total 4845256
+drwxr-xr-x  3 root root       4096 Mar 23 13:16 ./
+drwxr-xr-x 23 root root       4096 Mar 23 13:23 ../
+drwx------  2 root root      16384 Mar 23 13:08 lost+found/
+-rw-r--r--  1 root root 4961513472 Mar 23 13:17 test.log
+root@ecss:~#
+
+
+
+
+LVM-RAID 
+root@ecss:~# pvcreate /dev/md127p{4,5}
+WARNING: ext4 signature detected on /dev/md127p4 at offset 1080. Wipe it? [y/n]: y
+  Wiping ext4 signature on /dev/md127p4.
+WARNING: ext4 signature detected on /dev/md127p5 at offset 1080. Wipe it? [y/n]: y
+  Wiping ext4 signature on /dev/md127p5.
+  Physical volume "/dev/md127p4" successfully created.
+  Physical volume "/dev/md127p5" successfully created.
+root@ecss:~#
+root@ecss:~# vgcreate vg0 /dev/md127p{4,5}
+  Volume group "vg0" successfully created
+root@ecss:~# lvcreate -l+80%FREE -m1 -n mirror vg0
+  Logical volume "mirror" created.
+root@ecss:~# lvs
+  LV        VG        Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  small     otus      -wi-a----- 100.00m
+  test      otus      -wi-ao---- <10.47g
+  ubuntu-lv ubuntu-vg -wi-ao---- 100.00g
+  mirror    vg0       rwi-a-r---  <4.79g                                    17.01
+root@ecss:~#
