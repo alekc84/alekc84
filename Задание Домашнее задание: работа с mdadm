@@ -1,0 +1,351 @@
+Смотрим текущее состояние 
+root@ecss:/home/ecss# lsscsi
+bash: lsscsi: command not found
+root@ecss:/home/ecss# lsblk
+NAME                      MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sda                         8:0    0  208G  0 disk
+├─sda1                      8:1    0    1M  0 part
+├─sda2                      8:2    0    2G  0 part /boot
+└─sda3                      8:3    0  206G  0 part
+  └─ubuntu--vg-ubuntu--lv 252:0    0  100G  0 lvm  /
+sdb                         8:16   0   10G  0 disk
+sdc                         8:32   0   10G  0 disk
+sdd                         8:48   0   10G  0 disk
+sde                         8:64   0   10G  0 disk
+sr0                        11:0    1 1024M  0 rom
+root@ecss:/home/ecss#
+
+root@ecss:/home/ecss# fdisk -l
+
+
+Disk /dev/sda: 208 GiB, 223338168320 bytes, 436207360 sectors
+Disk model: VBOX HARDDISK
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: D1369696-AE9B-4812-BEEF-A3C9CFC525E7
+
+Device       Start       End   Sectors  Size Type
+/dev/sda1     2048      4095      2048    1M BIOS boot
+/dev/sda2     4096   4198399   4194304    2G Linux filesystem
+/dev/sda3  4198400 436203519 432005120  206G Linux filesystem
+
+
+Disk /dev/sdb: 10 GiB, 10737418240 bytes, 20971520 sectors
+Disk model: VBOX HARDDISK
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/sdc: 10 GiB, 10737418240 bytes, 20971520 sectors
+Disk model: VBOX HARDDISK
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/sdd: 10 GiB, 10737418240 bytes, 20971520 sectors
+Disk model: VBOX HARDDISK
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/sde: 10 GiB, 10737418240 bytes, 20971520 sectors
+Disk model: VBOX HARDDISK
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/mapper/ubuntu--vg-ubuntu--lv: 100 GiB, 107374182400 bytes, 209715200 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+root@ecss:/home/ecss#
+
+смотрим raid 
+root@ecss:/home/ecss# cat /proc/mdstat
+Personalities : [raid0] [raid1] [raid6] [raid5] [raid4] [raid10]
+md0 : active raid6 sdf[4] sde[3] sdd[2] sdc[1] sdb[0]
+      31429632 blocks super 1.2 level 6, 512k chunk, algorithm 2 [5/5] [UUUUU]
+      [======>..............]  resync = 31.8% (3335072/10476544) finish=1.1min speed=105207K/sec
+
+unused devices: <none>
+root@ecss:/home/ecss#
+
+
+Видим что все диски в RAID активны
+
+root@ecss:/home/ecss# mdadm -D /dev/md0
+/dev/md0:
+           Version : 1.2
+     Creation Time : Sun Mar 23 11:10:52 2025
+        Raid Level : raid6
+        Array Size : 31429632 (29.97 GiB 32.18 GB)
+     Used Dev Size : 10476544 (9.99 GiB 10.73 GB)
+      Raid Devices : 5
+     Total Devices : 5
+       Persistence : Superblock is persistent
+
+       Update Time : Sun Mar 23 11:12:20 2025
+             State : clean
+    Active Devices : 5
+   Working Devices : 5
+    Failed Devices : 0
+     Spare Devices : 0
+
+            Layout : left-symmetric
+        Chunk Size : 512K
+
+Consistency Policy : resync
+
+              Name : ecss:0  (local to host ecss)
+              UUID : 507f6245:bfc90e7d:14c0a7da:13a8dd61
+            Events : 17
+
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       2       8       48        2      active sync   /dev/sdd
+       3       8       64        3      active sync   /dev/sde
+       4       8       80        4      active sync   /dev/sdf
+root@ecss:/home/ecss#
+
+
+Еще одна команда прсомотра статистки по райду 
+root@ecss:/home/ecss# mdadm --detail --scan --verbose
+ARRAY /dev/md0 level=raid6 num-devices=5 metadata=1.2 name=ecss:0 UUID=507f6245:bfc90e7d:14c0a7da:13a8dd61
+   devices=/dev/sdb,/dev/sdc,/dev/sdd,/dev/sde,/dev/sdf
+root@ecss:/home/ecss#
+Видим что райд 6 и какие в нем диски devices=/dev/sdb,/dev/sdc,/dev/sdd,/dev/sde,/dev/sdf
+
+
+
+
+выводим диск /dev/sdf
+root@ecss:/home/ecss# mdadm /dev/md0 --fail /dev/sdf
+mdadm: set /dev/sdf faulty in /dev/md0
+
+
+root@ecss:/home/ecss# mdadm -D /dev/md0
+/dev/md0:
+           Version : 1.2
+     Creation Time : Sun Mar 23 11:10:52 2025
+        Raid Level : raid6
+        Array Size : 31429632 (29.97 GiB 32.18 GB)
+     Used Dev Size : 10476544 (9.99 GiB 10.73 GB)
+      Raid Devices : 5
+     Total Devices : 5
+       Persistence : Superblock is persistent
+
+       Update Time : Sun Mar 23 11:20:12 2025
+             State : clean, degraded
+    Active Devices : 4
+   Working Devices : 4
+    Failed Devices : 1
+     Spare Devices : 0
+
+            Layout : left-symmetric
+        Chunk Size : 512K
+
+Consistency Policy : resync
+
+              Name : ecss:0  (local to host ecss)
+              UUID : 507f6245:bfc90e7d:14c0a7da:13a8dd61
+            Events : 19
+
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       2       8       48        2      active sync   /dev/sdd
+       3       8       64        3      active sync   /dev/sde
+       -       0        0        4      removed                     ВИДИМ ЧТО ДИСК sdf УДАЛЕН 
+
+       4       8       80        -      faulty   /dev/sdf            ВИДИМ ЧТО ДИСК sdf УДАЛЕН 
+
+
+
+active raid6 sdf[4](F)  видим что райд активен но нет одного диска
+root@ecss:/home/ecss# cat /proc/mdstat
+Personalities : [raid0] [raid1] [raid6] [raid5] [raid4] [raid10]
+md0 : active raid6 sdf[4](F) sde[3] sdd[2] sdc[1] sdb[0]
+      31429632 blocks super 1.2 level 6, 512k chunk, algorithm 2 [5/4] [UUUU_]
+	  
+	  
+	  УДАЛЯЕМ НЕ НУЖНЫЙ ДИСК 
+	  root@ecss:/home/ecss# mdadm /dev/md0 --remove /dev/sdf
+
+root@ecss:/home/ecss# mdadm /dev/md0 --remove /dev/sdf
+mdadm: hot removed /dev/sdf from /dev/md0
+
+
+
+Добавляем диск 
+root@ecss:/home/ecss# mdadm /dev/md0 --add /dev/sdf
+mdadm: added /dev/sdf
+root@ecss:/home/ecss#
+
+
+видим как идет запись данных на новый диск 
+root@ecss:/home/ecss# mdadm -D /dev/md0
+/dev/md0:
+           Version : 1.2
+     Creation Time : Sun Mar 23 11:10:52 2025
+        Raid Level : raid6
+        Array Size : 31429632 (29.97 GiB 32.18 GB)
+     Used Dev Size : 10476544 (9.99 GiB 10.73 GB)
+      Raid Devices : 5
+     Total Devices : 5
+       Persistence : Superblock is persistent
+
+       Update Time : Sun Mar 23 12:16:31 2025
+             State : clean, degraded, recovering
+    Active Devices : 4
+   Working Devices : 5
+    Failed Devices : 0
+     Spare Devices : 1
+
+            Layout : left-symmetric
+        Chunk Size : 512K
+
+Consistency Policy : resync
+
+    Rebuild Status : 32% complete
+
+              Name : ecss:0  (local to host ecss)
+              UUID : 507f6245:bfc90e7d:14c0a7da:13a8dd61
+            Events : 27
+
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       2       8       48        2      active sync   /dev/sdd
+       3       8       64        3      active sync   /dev/sde
+       5       8       80        4      spare rebuilding   /dev/sdf
+root@ecss:/home/ecss#
+
+
+root@ecss:/home/ecss# mdadm -D /dev/md0
+/dev/md0:
+           Version : 1.2
+     Creation Time : Sun Mar 23 11:10:52 2025
+        Raid Level : raid6
+        Array Size : 31429632 (29.97 GiB 32.18 GB)
+     Used Dev Size : 10476544 (9.99 GiB 10.73 GB)
+      Raid Devices : 5
+     Total Devices : 5
+       Persistence : Superblock is persistent
+
+       Update Time : Sun Mar 23 12:17:20 2025
+             State : clean
+    Active Devices : 5
+   Working Devices : 5
+    Failed Devices : 0
+     Spare Devices : 0
+
+            Layout : left-symmetric
+        Chunk Size : 512K
+
+Consistency Policy : resync
+
+              Name : ecss:0  (local to host ecss)
+              UUID : 507f6245:bfc90e7d:14c0a7da:13a8dd61
+            Events : 39
+
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       2       8       48        2      active sync   /dev/sdd
+       3       8       64        3      active sync   /dev/sde
+       5       8       80        4      active sync   /dev/sdf
+root@ecss:/home/ecss#
+
+
+
+
+root@ecss:/home/ecss# for i in $(seq 1 5); do sudo mkfs.ext4 /dev/md0p$i; done
+mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 1570944 4k blocks and 393216 inodes
+Filesystem UUID: 1421af05-8147-4a8b-9c51-cf74746d1c53
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (16384 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 1571712 4k blocks and 393216 inodes
+Filesystem UUID: 06eedef0-76a3-492e-b760-5ce59700ebd8
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (16384 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 1571328 4k blocks and 393216 inodes
+Filesystem UUID: 54a96d1d-868c-4db7-b340-25b5bb986f03
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (16384 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 1571712 4k blocks and 393216 inodes
+Filesystem UUID: 80195e93-d626-4ae9-9484-fd0f12d66baa
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (16384 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 1570944 4k blocks and 393216 inodes
+Filesystem UUID: bef4a648-e30b-4e63-9d3c-c40452a2ca1d
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (16384 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+root@ecss:/home/ecss# mkdir -p /raid/part{1,2,3,4,5}
+root@ecss:/home/ecss# for i in $(seq 1 5); do mount /dev/md0p$i /raid/part$i; done
+
+cмотрим что католги примонтированы
+root@ecss:/home/ecss# df -h
+Filesystem                         Size  Used Avail Use% Mounted on
+tmpfs                              795M  864K  794M   1% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv   98G  7.2G   86G   8% /
+tmpfs                              3.9G     0  3.9G   0% /dev/shm
+tmpfs                              5.0M     0  5.0M   0% /run/lock
+/dev/sda2                          2.0G  319M  1.5G  18% /boot
+tmpfs                              795M  4.0K  795M   1% /run/user/1000
+/dev/md0p1                         5.9G   24K  5.5G   1% /raid/part1
+/dev/md0p2                         5.9G   24K  5.6G   1% /raid/part2
+/dev/md0p3                         5.9G   24K  5.5G   1% /raid/part3
+/dev/md0p4                         5.9G   24K  5.6G   1% /raid/part4
+/dev/md0p5                         5.9G   24K  5.5G   1% /raid/part5
+root@ecss:/home/ecss#
+
+
+
+
+
+
+
+
+
