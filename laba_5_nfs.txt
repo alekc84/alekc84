@@ -1,0 +1,123 @@
+root@ecss:~# ss -tnplu | grep 2049
+tcp   LISTEN 0      64                 0.0.0.0:2049       0.0.0.0:*
+tcp   LISTEN 0      64                    [::]:2049          [::]:*
+root@ecss:~# ss -tnplu | grep 111
+udp   UNCONN 0      0                  0.0.0.0:111        0.0.0.0:*    users:(("rpcbind",pid=1949,fd=5),("systemd",pid=1,fd=86))
+udp   UNCONN 0      0                     [::]:111           [::]:*    users:(("rpcbind",pid=1949,fd=7),("systemd",pid=1,fd=88))
+tcp   LISTEN 0      4096               0.0.0.0:111        0.0.0.0:*    users:(("rpcbind",pid=1949,fd=4),("systemd",pid=1,fd=85))
+tcp   LISTEN 0      4096                  [::]:111           [::]:*    users:(("rpcbind",pid=1949,fd=6),("systemd",pid=1,fd=87))
+root@ecss:~#
+root@ecss:~# mkdir -p /srv/share/upload
+root@ecss:~# chown -R nobody:nogroup /srv/share
+root@ecss:~# chmod 0777 /srv/share/upload
+root@ecss:~# cd /etc/exports
+-bash: cd: /etc/exports: Not a directory
+root@ecss:~# cd etc/exports
+-bash: cd: etc/exports: No such file or directory
+root@ecss:~#
+root@ecss:~#
+root@ecss:~#
+root@ecss:~#
+root@ecss:~# cd ~
+root@ecss:~# cd /etc/exports
+-bash: cd: /etc/exports: Not a directory
+root@ecss:~# cd /etc/
+root@ecss:/etc# cat << EOF > /etc/exports
+/srv/share 192.168.0.68/32(rw,sync,root_squash)
+EOF
+root@ecss:/etc# exportfs -r
+exportfs: /etc/exports [1]: Neither 'subtree_check' or 'no_subtree_check' specified for export "192.168.50.11/32:/srv/share".
+  Assuming default behaviour ('no_subtree_check').
+  NOTE: this default has changed since nfs-utils version 1.0.x
+
+
+root@ecss:/etc# exportfs -s
+/srv/share  192.168.0.68/32(sync,wdelay,hide,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+root@ecss:/etc#
+
+
+
+
+
+root@ecss:~# echo "192.168.0.47:/srv/share/ /mnt nfs vers=3,noauto,x-systemd.automount 0 0" >> /etc/fstab
+root@ecss:~# systemctl daemon-reload
+root@ecss:~# systemctl restart remote-fs.target
+root@ecss:~# mount | grep mnt
+nsfs on /run/snapd/ns/lxd.mnt type nsfs (rw)
+systemd-1 on /mnt type autofs (rw,relatime,fd=54,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=43030)
+root@ecss:~# cd /mnt/
+root@ecss:/mnt# mount | grep mnt
+nsfs on /run/snapd/ns/lxd.mnt type nsfs (rw)
+systemd-1 on /mnt type autofs (rw,relatime,fd=54,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=43030)
+192.168.0.47:/srv/share/ on /mnt type nfs (rw,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.0.47,mountvers=3,mountport=36663,mountproto=udp,local_lock=none,addr=192.168.0.47)
+root@ecss:/mnt#
+
+
+на сервере 
+root@ecss:/etc# cd /srv/share/upload.
+-bash: cd: /srv/share/upload.: No such file or directory
+root@ecss:/etc# cd /srv/share/upload
+root@ecss:/srv/share/upload# touch check_file
+root@ecss:/srv/share/upload#
+
+на клиенте
+root@ecss:/mnt# cd upload/
+root@ecss:/mnt/upload# touch client_file
+root@ecss:/mnt/upload#
+root@ecss:/mnt/upload#
+root@ecss:/mnt/upload#
+root@ecss:/mnt/upload#
+root@ecss:/mnt/upload#
+
+
+root@ecss:/mnt/upload# ls -la
+total 8
+drwxrwxrwx 2 nobody nogroup 4096 Mar 23 15:18 .
+drwxr-xr-x 3 nobody nogroup 4096 Mar 23 15:07 ..
+-rw-r--r-- 1 root   root       0 Mar 23 15:17 check_file
+-rw-r--r-- 1 nobody nogroup    0 Mar 23 15:18 client_file
+root@ecss:/mnt/upload#
+
+
+на сервере после ребута 
+
+root@ecss:/srv/share/upload# ls -la
+total 8
+drwxrwxrwx 2 nobody nogroup 4096 Mar 23 15:18 .
+drwxr-xr-x 3 nobody nogroup 4096 Mar 23 15:07 ..
+-rw-r--r-- 1 root   root       0 Mar 23 15:17 check_file
+-rw-r--r-- 1 nobody nogroup    0 Mar 23 15:18 client_file
+root@ecss:/srv/share/upload#root@ecss:/srv/share/upload# exportfs -s;
+/srv/share  192.168.0.68/32(sync,wdelay,hide,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+root@ecss:/srv/share/upload#
+
+на клиенте
+root@ecss:/mnt/upload#  mount | grep mnt
+systemd-1 on /mnt type autofs (rw,relatime,fd=58,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=19243)
+192.168.0.47:/srv/share/ on /mnt type nfs (rw,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.0.47,mountvers=3,mountport=38027,mountproto=udp,local_lock=none,addr=192.168.0.47)
+nsfs on /run/snapd/ns/lxd.mnt type nsfs (rw)
+root@ecss:/mnt/upload#
+
+root@ecss:/mnt/upload# ls -la
+total 8
+drwxrwxrwx 2 nobody nogroup 4096 Mar 23 15:18 .
+drwxr-xr-x 3 nobody nogroup 4096 Mar 23 15:07 ..
+-rw-r--r-- 1 root   root       0 Mar 23 15:17 check_file
+-rw-r--r-- 1 nobody nogroup    0 Mar 23 15:18 client_file
+root@ecss:/mnt/upload#
+
+
+
+создем файл 
+root@ecss:/mnt/upload# touch final_check
+root@ecss:/mnt/upload# ls -la
+total 8
+drwxrwxrwx 2 nobody nogroup 4096 Mar 23 15:26 .
+drwxr-xr-x 3 nobody nogroup 4096 Mar 23 15:07 ..
+-rw-r--r-- 1 root   root       0 Mar 23 15:17 check_file
+-rw-r--r-- 1 nobody nogroup    0 Mar 23 15:18 client_file
+-rw-r--r-- 1 nobody nogroup    0 Mar 23 15:26 final_check
+
+
+
+
