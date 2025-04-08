@@ -1,0 +1,63 @@
+root@ecss:/etc/nginx# systemctl status nginx@second
+● nginx@second.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; vendor preset: enabled)
+     Active: active (running) since Tue 2025-04-08 20:52:15 UTC; 7s ago
+       Docs: man:nginx(8)
+    Process: 20881 ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx-second.conf -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+    Process: 20882 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx-second.conf -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+   Main PID: 20883 (nginx)
+      Tasks: 5 (limit: 9317)
+     Memory: 4.8M
+        CPU: 33ms
+     CGroup: /system.slice/system-nginx.slice/nginx@second.service
+             ├─20883 "nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx-second.conf -g daemon on; master_process on;"
+             ├─20884 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─20885 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─20886 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             └─20887 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+
+Apr 08 20:52:15 ecss systemd[1]: Starting A high performance web server and a reverse proxy server...
+Apr 08 20:52:15 ecss systemd[1]: Started A high performance web server and a reverse proxy server.
+root@ecss:/etc/nginx#
+
+
+
+root@ecss:/etc/nginx# systemctl status nginx@first
+● nginx@first.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; vendor preset: enabled)
+     Active: active (running) since Tue 2025-04-08 20:42:38 UTC; 8min ago
+       Docs: man:nginx(8)
+    Process: 20839 ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx-first.conf -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+    Process: 20840 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx-first.conf -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+   Main PID: 20841 (nginx)
+      Tasks: 5 (limit: 9317)
+     Memory: 4.9M
+        CPU: 25ms
+     CGroup: /system.slice/system-nginx.slice/nginx@first.service
+             ├─20841 "nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx-first.conf -g daemon on; master_process on;"
+             ├─20842 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─20843 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─20844 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             └─20845 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+
+root@ecss:/etc/nginx# ss -tnulp | grep nginx
+tcp   LISTEN 0      511                0.0.0.0:80        0.0.0.0:*    users:(("nginx",pid=20845,fd=7),("nginx",pid=20844,fd=7),("nginx",pid=20843,fd=7),("nginx",pid=20842,fd=7),("nginx",pid=20841,fd=7))
+tcp   LISTEN 0      511                0.0.0.0:9002      0.0.0.0:*    users:(("nginx",pid=20845,fd=6),("nginx",pid=20844,fd=6),("nginx",pid=20843,fd=6),("nginx",pid=20842,fd=6),("nginx",pid=20841,fd=6))
+tcp   LISTEN 0      511                0.0.0.0:9001      0.0.0.0:*    users:(("nginx",pid=20887,fd=6),("nginx",pid=20886,fd=6),("nginx",pid=20885,fd=6),("nginx",pid=20884,fd=6),("nginx",pid=20883,fd=6))
+tcp   LISTEN 0      511                   [::]:80           [::]:*    users:(("nginx",pid=20845,fd=8),("nginx",pid=20844,fd=8),("nginx",pid=20843,fd=8),("nginx",pid=20842,fd=8),("nginx",pid=20841,fd=8))
+root@ecss:/etc/nginx#
+
+
+root@ecss:/etc/nginx# ps afx | grep nginx
+  20895 pts/1    S+     0:00                          \_ grep --color=auto nginx
+  20841 ?        Ss     0:00 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx-first.conf -g daemon on; master_process on;
+  20842 ?        S      0:00  \_ nginx: worker process
+  20843 ?        S      0:00  \_ nginx: worker process
+  20844 ?        S      0:00  \_ nginx: worker process
+  20845 ?        S      0:00  \_ nginx: worker process
+  20883 ?        Ss     0:00 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx-second.conf -g daemon on; master_process on;
+  20884 ?        S      0:00  \_ nginx: worker process
+  20885 ?        S      0:00  \_ nginx: worker process
+  20886 ?        S      0:00  \_ nginx: worker process
+  20887 ?        S      0:00  \_ nginx: worker process
+root@ecss:/etc/nginx#
