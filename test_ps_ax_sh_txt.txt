@@ -1,0 +1,174 @@
+-rw-r--r-- 1 root root 3478 Apr 13 11:21 test_ps_ax_sh_txt
+root@ecss:/home/ecss# cat -n test_ps_ax_sh_txt
+     1  PID     TTY     STAT    TIME    COMMAND
+     2  1       ?       Ss      0:01    /sbin/init
+     3  2       ?       S       0:00
+     4  3       ?       S       0:00
+     5  4       ?       I<      0:00
+     6  5       ?       I<      0:00
+     7  6       ?       I<      0:00
+     8  7       ?       I<      0:00
+     9  10      ?       I<      0:00
+    10  11      ?       I       0:00
+    11  12      ?       I<      0:00
+    12  13      ?       I       0:00
+    13  14      ?       I       0:00
+    14  15      ?       I       0:00
+    15  16      ?       S       0:00
+    16  17      ?       I       0:00
+    17  18      ?       S       0:00
+    18  19      ?       S       0:00
+    19  20      ?       S       0:00
+    20  21      ?       S       0:00
+    21  22      ?       S       0:00
+    22  23      ?       S       0:00
+    23  24      ?       S       0:00
+    24  25      ?       S       0:00
+    25  26      ?       S       0:00
+    26  28      ?       I<      0:00
+    27  29      ?       S       0:00
+    28  30      ?       S       0:00
+    29  31      ?       S       0:00
+    30  32      ?       S       0:00
+    31  34      ?       I<      0:00
+    32  35      ?       S       0:00
+    33  36      ?       S       0:00
+    34  37      ?       S       0:00
+    35  38      ?       S       0:00
+    36  42      ?       I       0:00
+    37  45      ?       S       0:00
+    38  46      ?       I<      0:00
+    39  47      ?       I       0:00
+    40  48      ?       S       0:00
+    41  49      ?       S       0:00
+    42  50      ?       S       0:00
+    43  52      ?       I<      0:00
+    44  53      ?       S       0:00
+    45  54      ?       S       0:00
+    46  55      ?       SN      0:00
+    47  56      ?       I<      0:00
+    48  57      ?       I<      0:00
+    49  58      ?       I<      0:00
+    50  59      ?       S       0:00
+    51  60      ?       I       0:00
+    52  61      ?       I       0:00
+    53  62      ?       I<      0:00
+    54  63      ?       I<      0:00
+    55  64      ?       I<      0:00
+    56  65      ?       I<      0:00
+    57  66      ?       I<      0:00
+    58  67      ?       I<      0:00
+    59  68      ?       S       0:00
+    60  70      ?       I<      0:00
+    61  71      ?       S       0:00
+    62  72      ?       S       0:00
+    63  73      ?       I<      0:00
+    64  74      ?       I<      0:00
+    65  75      ?       I       0:00
+    66  76      ?       S       0:00
+    67  77      ?       I<      0:00
+    68  78      ?       S       0:00
+    69  79      ?       I<      0:00
+    70  83      ?       I       0:00
+    71  84      ?       I       0:00
+    72  85      ?       I<      0:00
+    73  86      ?       I<      0:00
+    74  87      ?       I<      0:00
+    75  89      ?       I       0:00
+    76  90      ?       I       0:00
+    77  91      ?       I       0:00
+    78  97      ?       I<      0:00
+    79  99      ?       I<      0:00
+    80  100     ?       I<      0:00
+    81  101     ?       I<      0:00
+    82  102     ?       I<      0:00
+    83  103     ?       I<      0:00
+    84  108     ?       I<      0:00
+    85  117     ?       I<      0:00
+    86  118     ?       I<      0:00
+    87  149     ?       I<      0:00
+    88  168     ?       I       0:00
+    89  169     ?       S       0:00
+    90  170     ?       I<      0:00
+    91  171     ?       S       0:00
+    92  172     ?       I<      0:00
+    93  173     ?       S       0:00
+    94  174     ?       I<      0:00
+    95  175     ?       S       0:00
+    96  176     ?       I<      0:00
+    97  177     ?       S       0:00
+    98  178     ?       I<      0:00
+    99  179     ?       S       0:00
+   100  180     ?       I<      0:00
+   101  181     ?       I       0:00
+   102  190     ?       S       0:00
+   103  191     ?       I<      0:00
+   104  241     ?       I<      0:00
+   105  252     ?       I<      0:00
+   106  253     ?       S       0:00
+   107  299     ?       I<      0:00
+   108  300     ?       I<      0:00
+   109  301     ?       I<      0:00
+   110  303     ?       I<      0:00
+   111  304     ?       I<      0:00
+   112  305     ?       I<      0:00
+   113  313     ?       I<      0:00
+   114  323     ?       S       0:00
+   115  395     ?       I<      0:00
+   116  420     ?       S       0:00
+   117  421     ?       I<      0:00
+   118  483     ?       Ss      0:00    /lib/systemd/systemd-journald
+   119  512     ?       Ssl     0:00    /sbin/dmeventd-f
+   120  519     ?       I<      0:00
+   121  520     ?       I<      0:00
+   122  522     ?       I       0:01
+   123  523     ?       I<      0:00
+   124  524     ?       I<      0:00
+   125  525     ?       Ssl     0:00    /sbin/multipathd-d-s
+   126  532     ?       Ss      0:00    /lib/systemd/systemd-udevd
+   127  781     ?       S       0:00
+   128  782     ?       I<      0:00
+   129  786     ?       Ss      0:00    /sbin/mdadm--monitor--scan
+   130  807     ?       Ssl     0:00    /lib/systemd/systemd-timesyncd
+   131  823     ?       Ss      0:00    /lib/systemd/systemd-networkd
+   132  825     ?       Ss      0:00    /lib/systemd/systemd-resolved
+   133  838     ?       Ss      0:00    @dbus-daemon--system--address=systemd:--nofork--nopidfile--systemd-activation--syslog-only
+   134  848     ?       Ss      0:00    /usr/bin/python3/usr/bin/networkd-dispatcher--run-startup-triggers
+   135  871     ?       Ss      0:00    /lib/systemd/systemd-logind
+   136  892     ?       I       0:00
+   137  901     ?       Ss      0:00    sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups
+   138  902     ?       I       0:00
+   139  904     tty1    Ss      0:00    /bin/login-p--
+   140  905     ?       Ssl     0:00    /usr/bin/python3/usr/share/unattended-upgrades/unattended-upgrade-shutdown--wait-for-signal
+   141  907     ?       Ss      0:00    nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
+   142  908     ?       S       0:00    nginx: worker process
+   143  909     ?       S       0:00    nginx: worker process
+   144  910     ?       S       0:00    nginx: worker process
+   145  911     ?       S       0:00    nginx: worker process
+   146  915     ?       Ssl     0:00    /usr/libexec/polkitd--no-debug
+   147  1044    ?       Ss      0:00    /lib/systemd/systemd--user
+   148  1045    ?       S       0:00    (sd-pam)
+   149  1053    tty1    S       0:00    -bash
+   150  1064    tty1    I<      0:00
+   151  1066    tty1    S+      0:00    sudo-s
+   152  1067    tty1    Ss      0:00    sudo-s
+   153  1068    pts/0   S+      0:00    /bin/bash
+   154  1071    ?       Ss      0:00    sshd: ecss [priv]
+   155  1079    ?       I       0:00
+   156  1099    ?       S       0:00    sshd: ecss@pts/1
+   157  1100    pts/1   Ss      0:00    -bash
+   158  1105    pts/1   S+      0:00    sudo-s
+   159  1106    pts/1   Ss      0:00    sudo-s
+   160  1107    pts/2   S       0:00    /bin/bash
+   161  1928    pts/2   I       0:00
+   162  4524    pts/2   I       0:00
+   163  5957    pts/2   I       0:06
+   164  5958    pts/2   I       0:00
+   165  6016    pts/2   I       0:00
+   166  6018    pts/2   I       0:00
+   167  7622    pts/2   R+      0:00    /bin/bash./ps_ax.sh
+   168  7623    pts/2   R+      0:00    /bin/bash./ps_ax.sh
+   169  7624    pts/2   R+      0:00    /bin/bash./ps_ax.sh
+   170  7625    pts/2   R+      0:00    /bin/bash./ps_ax.sh
+   171  7626    pts/2   R+      0:00    /bin/bash./ps_ax.sh
+root@ecss:/home/ecss#
