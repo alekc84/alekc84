@@ -1,5 +1,8 @@
-установили NGNIX 
-[root@localhost x86_64]# systemctl start nginx
+
+установили модуль NGNIX 
+
+
+```[root@localhost x86_64]# systemctl start nginx
 [root@localhost x86_64]# systemctl status nginx
 ● nginx.service - The nginx HTTP and reverse proxy server
      Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; preset: disabled)
@@ -13,9 +16,13 @@
         CPU: 28ms
      CGroup: /system.slice/nginx.service
              ├─47140 "nginx: master process /usr/sbin/nginx"
-             └─47141 "nginx: worker process"
+             └─47141 "nginx: worker process"```
+
 
 копируем  пакеты создаем репозитоирй 
+
+
+
 [root@localhost repo]# cp ~/rpmbuild/RPMS/x86_64/*.rpm /usr/share/nginx/html/repo/
 [root@localhost repo]# createrepo /usr/share/nginx/html/repo/
 Directory walk started
