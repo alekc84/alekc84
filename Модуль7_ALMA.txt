@@ -1,5 +1,5 @@
 
-установили модуль NGNIX 
+***установили модуль NGNIX*** 
 
 
 ```[root@localhost x86_64]# systemctl start nginx
@@ -19,7 +19,7 @@
              └─47141 "nginx: worker process"```
 
 
-копируем  пакеты создаем репозитоирй 
+***копируем  пакеты,в общий каталог, создаем свой репозиторий и размещаем созданный ранее rpm в нем ***
 
 
 
@@ -42,7 +42,8 @@ nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@localhost repo]#
 
-Смотрим curl 
+***Смотрим curl что есть пакеты***
+
 [root@localhost repo]# curl -a http://localhost/repo/
 <html>
 <head><title>Index of /repo/</title></head>
@@ -64,7 +65,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@localhost repo]#
 
 
-Проеряем что подключился репозиторий 
+***Проеряем что подключился репозиторий*** 
 
 [root@localhost repo]# yum repolist enabled | grep otus
 otus                             otus-linux
@@ -73,7 +74,7 @@ otus                             otus-linux
 
 
 
-добавляем пакет 
+***добавляем пакет*** 
 
 
 cd /usr/share/nginx/html/repo/
@@ -93,6 +94,8 @@ percona-release-latest.noarch.rpm                        100%[==================
 
 
 
+***Добавим пакет в наш репозиторий rpm***
+
 [root@localhost repo]# cd /usr/share/nginx/html/repo/
 [root@localhost repo]# wget https://repo.percona.com/yum/percona-release-latest.noarch.rpm
 --2025-04-11 20:14:55--  https://repo.percona.com/yum/percona-release-latest.noarch.rpm
@@ -105,6 +108,10 @@ Saving to: ‘percona-release-latest.noarch.rpm’
 percona-release-latest.noarch.rpm                        100%[=================================================================================================================================>]  27.64K  --.-KB/s    in 0s
 
 2025-04-11 20:14:56 (243 MB/s) - ‘percona-release-latest.noarch.rpm’ saved [28300/28300]
+
+
+***Обновим список пакетов в репозитории:***
+
 
 [root@localhost repo]# createrepo /usr/share/nginx/html/repo/
 Directory walk started
@@ -124,6 +131,8 @@ percona-release.noarch                               1.0-30                     
 [root@localhost repo]#
 
 
+
+***Устанвливаем из репозитория***
 
 [root@localhost repo]# yum install -y percona-release.noarch
 Last metadata expiration check: 0:00:52 ago on Fri Apr 11 20:15:33 2025.
@@ -176,6 +185,8 @@ For more information, please visit:
 
 Installed:
   percona-release-1.0-30.noarch
+
+***Все прошло успешно. Устанвока выполнилась***
 
 Complete!
 [root@localhost repo]#
